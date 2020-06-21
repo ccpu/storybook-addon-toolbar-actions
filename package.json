@@ -1,6 +1,6 @@
 {
   "name": "storybook-addon-tool-actions",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "storybook-addon-tool-actions",
   "author": "m.doaie <mdoaie@yahoo.co.uk>",
   "main": "dist",
