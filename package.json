@@ -1,7 +1,7 @@
 {
-  "name": "storybook-addon-tool-actions",
-  "version": "0.0.2",
-  "description": "storybook-addon-tool-actions",
+  "name": "storybook-addon-toolbar-actions",
+  "version": "0.0.4",
+  "description": "storybook-addon-toolbar-actions",
   "author": "m.doaie <mdoaie@yahoo.co.uk>",
   "main": "dist",
   "engines": {
@@ -9,13 +9,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ccpu/storybook-addon-tool-actions.git"
+    "url": "https://github.com/ccpu/storybook-addon-toolbar-actions.git"
   },
   "devDependencies": {
+    "@babel/core": "^7.10.3",
+    "@babel/preset-env": "^7.10.3",
+    "@babel/preset-react": "^7.10.1",
+    "@material-ui/core": "^4.10.2",
+    "@material-ui/icons": "^4.9.1",
     "@types/jest": "^26.0.0",
     "@types/node": "^14.0.13",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
+    "babel-loader": "^8.1.0",
     "eslint": "^7.3.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-jest": "^23.13.2",
@@ -27,24 +33,32 @@
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "ts-jest": "^26.1.0",
+    "ts-loader": "^7.0.5",
     "tsutils": "^3.17.1",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.5",
+    "webpack": "^4.43.0"
   },
   "scripts": {
+    "start:storybook": "start-storybook -p 9001 --ci",
     "clean": "rimraf coverage dist/* tmp",
     "build": "npm run clean && tsc -p tsconfig.release.json",
     "watch": "tsc -w -p tsconfig.release.json",
     "lint": "yarn eslint . --ext .ts,.tsx",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "prepublish": "npm run build && npm version patch"
+    "prepublish": "npm run build",
+    "postversion": "git push && git push --tags && npm publish"
   },
   "license": "MIT",
   "dependencies": {
     "@storybook/addons": "^5.3.19",
     "@storybook/api": "^5.3.19",
     "@storybook/components": "^5.3.19",
+    "@storybook/react": "^5.3.19",
+    "@testing-library/react-hooks": "^3.3.0",
     "nanoid": "^3.1.10",
-    "react": "^16.13.1"
+    "react": "^16.13.1",
+    "react-test-renderer": "^16.13.1",
+    "react-use": "^15.3.0"
   }
 }
