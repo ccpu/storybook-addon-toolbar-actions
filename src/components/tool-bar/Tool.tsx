@@ -1,21 +1,40 @@
 import React, { SFC } from 'react';
-import { Icon } from '../../icons/Icon';
-import { IconButton } from '@storybook/components';
+import { IconButton, Separator } from '@storybook/components';
 import { API } from '@storybook/api';
+import { useToolActions } from '../../hooks';
 
 export interface ToolProps {
   api?: API;
 }
 
 const Tool: SFC<ToolProps> = () => {
-  const hanle = () => {
+  const { icons } = useToolActions();
+
+  const handle = () => {
     console.log('click');
   };
 
+  if (!icons) return null;
+
+  const iconIds = Object.keys(icons);
+
+  if (!iconIds.length) return null;
+
   return (
-    <IconButton onClick={hanle} key="tool" title="tool icon">
-      <Icon />
-    </IconButton>
+    <>
+      <Separator />
+
+      {iconIds.map((iconID) => {
+        const SVGIcon = icons[iconID].icon;
+        return (
+          <IconButton onClick={handle} key="tool" title="tool icon">
+            <SVGIcon />
+          </IconButton>
+        );
+      })}
+
+      <Separator />
+    </>
   );
 };
 
