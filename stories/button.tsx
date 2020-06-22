@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useToolbarActions } from '../dist';
-// import { Icon } from './advertisement-fill.svg';
+import { useToolbarActions } from '../src';
 import AcUnit from '@material-ui/icons/AcUnit';
 import AccessAlarms from '@material-ui/icons/AccessAlarms';
 
