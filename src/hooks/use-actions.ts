@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ToolbarAction } from '../typings';
+import { ToolbarAction, ToolbarActionOption } from '../typings';
 import { ADDON_ID } from '../constants';
 import addons from '@storybook/addons';
 
@@ -37,9 +37,9 @@ export const useActions = () => {
     };
   }, [actions]);
 
-  const handleClick = useCallback((id: string) => {
+  const handleClick = useCallback((id: string, opt?: ToolbarActionOption) => {
     const chanel = addons.getChannel();
-    chanel.emit(id);
+    chanel.emit(id, opt);
   }, []);
 
   return { actions, handleClick };

@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
 import addons from '@storybook/addons';
-import { ToolbarAction, ToolbarActionOptions } from '../typings';
+import {
+  ToolbarAction,
+  ToolbarActionOptions,
+  ToolbarActionOption,
+} from '../typings';
 import { renderToString } from 'react-dom/server';
 import React from 'react';
 import { ADDON_ID } from '../constants';
 
-export const useToolbarActions = (
-  Icon: string | React.ComponentType,
-  callback: () => void,
+export function useToolbarActions<T extends React.ReactNode>(
+  Icon: T,
+  callback: (opt?: ToolbarActionOption) => void,
   options?: ToolbarActionOptions,
-) => {
+) {
   const [iconId] = useState(nanoid());
 
   useEffect(() => {
@@ -22,15 +26,14 @@ export const useToolbarActions = (
 
   useEffect(() => {
     const chanel = addons.getChannel();
-
+    const IconComponent = (Icon as unknown) as React.ComponentType;
     chanel.emit(ADDON_ID, {
       icon:
         typeof Icon === 'string'
           ? Icon
-          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (Icon as any).props
+          : React.isValidElement(Icon)
           ? renderToString(Icon)
-          : renderToString(<Icon />),
+          : renderToString(<IconComponent />),
       id: iconId,
       options,
     } as ToolbarAction);
@@ -41,4 +44,4 @@ export const useToolbarActions = (
       chanel.off(iconId, callback);
     };
   }, [Icon, iconId, callback, options]);
-};
+}

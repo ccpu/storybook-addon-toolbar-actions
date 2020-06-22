@@ -24,6 +24,12 @@
     "noImplicitThis": false,
     "strictNullChecks": false
   },
-  "include": ["src/**/*", "**/__tests__/*", "stories/*", "__mocks__/**/*"],
+  "include": [
+    "src/**/*",
+    "**/__tests__/*",
+    "stories/*",
+    "__mocks__/**/*",
+    "setupTests.ts"
+  ],
   "exclude": ["node_modules", "**/node_modules/*"]
 }
