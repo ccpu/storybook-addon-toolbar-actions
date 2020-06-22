@@ -18,7 +18,6 @@
     "@babel/preset-typescript": "^7.10.1",
     "@material-ui/core": "^4.10.2",
     "@material-ui/icons": "^4.9.1",
-    "@storybook/preset-create-react-app": "^3.1.2",
     "@types/enzyme": "^3.10.5",
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "^26.0.0",
@@ -31,7 +30,7 @@
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^7.3.0",
     "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-jest": "^23.13.2",
+    "eslint-plugin-jest": "^23.16.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^4.0.4",
@@ -39,12 +38,10 @@
     "jest": "^26.0.1",
     "jest-image-snapshot": "^4.0.2",
     "prettier": "^2.0.5",
+    "react-test-renderer": "^16.13.1",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.1.0",
-    "ts-loader": "^7.0.5",
-    "tsutils": "^3.17.1",
-    "typescript": "^3.9.5",
-    "webpack": "^4.43.0"
+    "ts-jest": "^26.1.1",
+    "typescript": "^3.9.5"
   },
   "scripts": {
     "start:storybook": "start-storybook -p 9001 --ci",
@@ -66,8 +63,6 @@
     "@testing-library/react-hooks": "^3.3.0",
     "@types/react-dom": "^16.9.8",
     "nanoid": "^3.1.10",
-    "react": "^16.13.1",
-    "react-test-renderer": "^16.13.1",
-    "react-use": "^15.3.0"
+    "react": "^16.13.1"
   }
 }
