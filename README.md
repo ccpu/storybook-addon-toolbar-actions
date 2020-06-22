@@ -1,6 +1,6 @@
 # node-typescript-boilerplate
 
-An Addon to add a button from any react functional component to the storybook toolbar.
+An Addon to add a button from within any react functional component to the storybook toolbar.
 
 > Note that this addon will only work with react app.
 
