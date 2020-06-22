@@ -7,6 +7,7 @@ export interface ToolbarActionOption {
 export interface ToolbarActionOptions {
   active?: boolean;
   options?: ToolbarActionOption[];
+  group?: string | number;
   closeOptionListOnClick?: boolean;
 }
 

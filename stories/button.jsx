@@ -23,6 +23,7 @@ export const Button = (props) => {
     },
     {
       closeOptionListOnClick: true,
+      group: 1,
       options: [{ title: 'name', value: 'val' }],
     },
   );
@@ -38,6 +39,17 @@ export const Button = (props) => {
     },
     {
       active,
+      group: 1,
+    },
+  );
+
+  useToolbarActions(
+    <AccessAlarms style={{ fill: 'currentColor', width: 18 }} />,
+    () => {
+      setActive(!active);
+    },
+    {
+      group: 2,
     },
   );
 
