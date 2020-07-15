@@ -9,8 +9,6 @@ const Tool: SFC = () => {
 
   const state = useStorybookState();
 
-  console.log(state);
-
   if (!actions || !actions.length) return null;
 
   let currentGroup = undefined;
