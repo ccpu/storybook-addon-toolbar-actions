@@ -25,9 +25,13 @@ import { useToolbarActions } from 'storybook-addon-toolbar-actions';
 import AcUnitIcon from '@material-ui/icons/AcUnit';
 
 export const WithButton = () => {
-  useToolbarActions(<AcUnitIcon style={{ fill: 'currentColor' }} />, () => {
-    console.log('clicked');
-  });
+  useToolbarActions(
+    'icon-id',
+    <AcUnitIcon style={{ fill: 'currentColor' }} />,
+    () => {
+      console.log('clicked');
+    },
+  );
   return <button />;
 };
 ```
@@ -37,6 +41,7 @@ To add option list:
 ```js
 export const WithButton = () => {
   useToolbarActions(
+    'icon-id',
     <AcUnitIcon style={{ fill: 'currentColor' }} />,
     (option) => {
       console.log(option);
@@ -67,6 +72,7 @@ If set a dropdown list will be open under the button:
 
 ```js
 useToolbarActions(
+  'icon-id',
   <AcUnitIcon style={{ fill: 'currentColor' }} />,
   (option) => {
     console.log(option);

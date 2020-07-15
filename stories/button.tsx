@@ -6,6 +6,7 @@ import AccessAlarms from '@material-ui/icons/AccessAlarms';
 export const Button = (props) => {
   const [active, setActive] = useState(false);
   useToolbarActions(
+    'id1',
     <svg
       xmlns="http://www.w3.org/2000/svg"
       version="1.1"
@@ -28,6 +29,7 @@ export const Button = (props) => {
   );
 
   useToolbarActions(
+    'id2',
     active ? (
       <AcUnit style={{ fill: 'currentColor', width: 18 }} />
     ) : (
@@ -43,6 +45,7 @@ export const Button = (props) => {
   );
 
   useToolbarActions(
+    'id3',
     <AccessAlarms style={{ fill: 'currentColor', width: 18 }} />,
     () => {
       setActive(!active);

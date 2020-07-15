@@ -13,11 +13,6 @@ jest.mock('@storybook/addons', () => ({
     on: jest.fn(),
   }),
 }));
-jest.mock('nanoid', () => ({
-  nanoid: () => {
-    return 'action-id';
-  },
-}));
 
 describe('useToolbarActions', () => {
   beforeEach(() => {
@@ -25,37 +20,37 @@ describe('useToolbarActions', () => {
   });
 
   it('should handle svg icon as string', async () => {
-    renderHook(() => useToolbarActions('svg-string', jest.fn()));
+    renderHook(() => useToolbarActions('icon-id', 'svg-string', jest.fn()));
 
     await new Promise((resolve) => setImmediate(resolve));
 
     expect(onEmitMock).toHaveBeenCalledWith('TOOLBAR_ACTIONS', {
       icon: 'svg-string',
-      id: 'action-id',
+      id: 'icon-id',
       options: undefined,
     });
   });
 
   it('should convert jsx component to string', async () => {
-    renderHook(() => useToolbarActions(<AcUnitIcon />, jest.fn()));
+    renderHook(() => useToolbarActions('icon-id', <AcUnitIcon />, jest.fn()));
 
     await new Promise((resolve) => setImmediate(resolve));
     expect(onEmitMock).toHaveBeenCalledWith('TOOLBAR_ACTIONS', {
       icon: renderToString(<AcUnitIcon />),
-      id: 'action-id',
+      id: 'icon-id',
       options: undefined,
     });
   });
 
   it('should convert component to string', async () => {
-    renderHook(() => useToolbarActions(AcUnitIcon, jest.fn()));
+    renderHook(() => useToolbarActions('icon-id', AcUnitIcon, jest.fn()));
 
     await new Promise((resolve) => setImmediate(resolve));
 
     await new Promise((resolve) => setImmediate(resolve));
     expect(onEmitMock).toHaveBeenCalledWith('TOOLBAR_ACTIONS', {
       icon: renderToString(<AcUnitIcon />),
-      id: 'action-id',
+      id: 'icon-id',
       options: undefined,
     });
   });

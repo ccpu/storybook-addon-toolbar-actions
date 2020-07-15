@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { nanoid } from 'nanoid';
+import { useEffect } from 'react';
+
 import addons from '@storybook/addons';
 import {
   ToolbarAction,
@@ -11,12 +11,11 @@ import React from 'react';
 import { ADDON_ID } from '../constants';
 
 export function useToolbarActions<T extends React.ReactNode>(
+  iconId: string,
   Icon: T,
   callback: (opt?: ToolbarActionOption) => void,
   options?: ToolbarActionOptions,
 ) {
-  const [iconId] = useState(nanoid());
-
   useEffect(() => {
     const chanel = addons.getChannel();
     return () => {
