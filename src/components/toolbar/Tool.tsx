@@ -1,13 +1,10 @@
 import React, { SFC, Fragment } from 'react';
 import { Separator } from '@storybook/components';
 import { ActionButton } from './ActionButton';
-import { useStorybookState } from '@storybook/api';
 import { useActions } from '../../hooks';
 
 const Tool: SFC = () => {
   const { actions, handleClick } = useActions();
-
-  const state = useStorybookState();
 
   if (!actions || !actions.length) return null;
 
