@@ -61,6 +61,7 @@ export const WithButton = () => {
 - options?: ToolbarActionOption[];
 - closeOptionListOnClick?: boolean;
 - group?: string | number;
+- setQueryString?: boolean;
 
 ### active
 
@@ -91,3 +92,7 @@ Will close the option dropdown list when option clicked.
 ### group
 
 Use this option to sort and group button in their container, when set the `Separator` will be added between button.
+
+### setQueryString
+
+If set to `true` a queryString will be added to story on option click.
