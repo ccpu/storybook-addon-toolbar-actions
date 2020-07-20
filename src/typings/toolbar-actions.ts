@@ -1,6 +1,7 @@
 export interface ToolbarActionOption {
-  title: string;
+  title?: string;
   value: string;
+  key: string;
   active?: boolean;
 }
 
@@ -9,6 +10,7 @@ export interface ToolbarActionOptions {
   options?: ToolbarActionOption[];
   group?: string | number;
   closeOptionListOnClick?: boolean;
+  setQueryString?: boolean;
 }
 
 export interface ToolbarAction {

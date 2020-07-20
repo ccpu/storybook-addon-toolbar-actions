@@ -10,6 +10,13 @@
       "command": "npm run watch",
       "problemMatcher": [],
       "auto": true
+    },
+    {
+      "type": "npm",
+      "script": "start:storybook",
+      "problemMatcher": [],
+      "label": "npm: start:storybook",
+      "detail": "start-storybook -p 9001 --ci"
     }
   ]
 }

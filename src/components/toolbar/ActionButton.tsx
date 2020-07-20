@@ -1,10 +1,11 @@
-import React, { SFC, useCallback } from 'react';
+import React, { SFC, useCallback, useEffect, useRef } from 'react';
 import { ToolbarAction, ToolbarActionOption } from '../../typings';
 import {
   IconButton,
   WithTooltip,
   TooltipLinkList,
 } from '@storybook/components';
+import { useStorybookApi } from '@storybook/api';
 
 export interface ActionButtonProps extends ToolbarAction {
   onClick: (id: string, option?: ToolbarActionOption) => void;
@@ -13,19 +14,39 @@ export interface ActionButtonProps extends ToolbarAction {
 const ActionButton: SFC<ActionButtonProps> = (props) => {
   const { id, onClick, icon, options } = props;
 
+  const clicked = useRef<boolean>(false);
+
+  const api = useStorybookApi();
+
   const handleClick = useCallback(() => {
+    clicked.current = true;
     onClick(id);
   }, [id, onClick]);
 
   const handleOptionClick = useCallback(
-    (e: ToolbarActionOption, onHide: () => void) => {
-      onClick(id, e);
+    (opt: ToolbarActionOption, onHide: () => void) => {
+      onClick(id, opt);
       if (options.closeOptionListOnClick) {
         onHide();
       }
+      if (options.setQueryString) {
+        api.setQueryParams({ ['knob-' + opt.key]: opt.value });
+      }
     },
-    [id, onClick, options],
+    [api, id, onClick, options],
   );
+
+  useEffect(() => {
+    if (
+      options &&
+      !options.options &&
+      clicked.current &&
+      options.setQueryString &&
+      options.active !== undefined
+    ) {
+      api.setQueryParams({ ['knob-' + id]: options.active + '' });
+    }
+  }, [api, id, options]);
 
   return (
     <>
@@ -40,7 +61,7 @@ const ActionButton: SFC<ActionButtonProps> = (props) => {
                   active: opt.active,
                   id: opt.value,
                   onClick: () => handleOptionClick(opt, onHide),
-                  title: opt.title,
+                  title: opt.title || opt.key,
                 };
               })}
             />
