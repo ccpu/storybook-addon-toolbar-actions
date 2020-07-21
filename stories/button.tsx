@@ -27,10 +27,10 @@ export const Button = (props) => {
     </svg>,
     (opts, opt) => {
       setOptions(opts);
-      console.log('id1', opt);
+      console.log('id1', opts, opt);
     },
     {
-      // closeOptionListOnClick: true,
+      closeOptionListOnClick: true,
       group: 1,
       // multiChoice: true,
       options,
@@ -55,19 +55,6 @@ export const Button = (props) => {
       setKnob: true,
     },
   );
-
-  // useToolbarActions(
-  //   'id3',
-  //   <AccessAlarms style={{ fill: 'currentColor', width: 18 }} />,
-  //   () => {
-  //     console.log('id3');
-
-  //     setActive(!active);
-  //   },
-  //   {
-  //     group: 2,
-  //   },
-  // );
 
   return <button {...props} />;
 };

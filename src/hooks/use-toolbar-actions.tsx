@@ -11,6 +11,7 @@ import React from 'react';
 import { ADDON_ID } from '../constants';
 import { CHANGE } from '@storybook/addon-knobs/dist/shared';
 import sum from 'hash-sum';
+import { getSearch } from './utils';
 
 export function useToolbarActions<T extends React.ReactNode>(
   iconId: string,
@@ -38,20 +39,32 @@ export function useToolbarActions<T extends React.ReactNode>(
 
     if (options && options.setKnob) {
       const chanel = addons.getChannel();
-      const urlParams = new URLSearchParams(window.location.search);
+
+      const urlParams = new URLSearchParams(getSearch());
+
+      const setKnob = (key: string) => {
+        const knobVal = urlParams.get('knob-' + key);
+        if (knobVal && knobVal !== 'undefined') {
+          chanel.emit(CHANGE, { name: key, value: knobVal });
+          return true;
+        }
+        return false;
+      };
+
       if (options.options) {
-        // options.options.forEach((opt) => {
-        //   const knobVal = urlParams.get('knob-' + opt.key);
-        //   if (knobVal) {
-        //     callback(opt);
-        //     chanel.emit(CHANGE, { name: opt.key, value: knobVal });
-        //   }
-        // });
+        const knobOptions = options.options.map((opt) => {
+          if (setKnob(opt.key)) {
+            opt.active = true;
+          }
+          return opt;
+        });
+        const active = knobOptions.filter((x) => x.active);
+        if (active && active.length) {
+          callback(knobOptions, options.multiChoice ? undefined : active[0]);
+        }
       } else {
-        const knobVal = urlParams.get('knob-' + iconId);
-        if (knobVal) {
+        if (setKnob(iconId)) {
           callback();
-          chanel.emit(CHANGE, { name: iconId, value: knobVal });
         }
       }
     }

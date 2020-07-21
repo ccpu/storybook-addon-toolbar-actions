@@ -20,11 +20,13 @@ module.exports = {
 
 within any functional component:
 
+To add icon:
+
 ```js
 import { useToolbarActions } from 'storybook-addon-toolbar-actions';
 import AcUnitIcon from '@material-ui/icons/AcUnit';
 
-export const WithButton = () => {
+export const WithIcon = () => {
   useToolbarActions(
     'icon-id',
     <AcUnitIcon style={{ fill: 'currentColor' }} />,
@@ -39,16 +41,25 @@ export const WithButton = () => {
 To add option list:
 
 ```js
-export const WithButton = () => {
+import { useToolbarActions } from 'storybook-addon-toolbar-actions';
+import AcUnitIcon from '@material-ui/icons/AcUnit';
+
+export const WithOptions = () => {
+  const [options, setOptions] = useState<ToolbarActionOption[]>([
+    { key: 'name', value: 'val' },
+    { key: 'name2', value: 'val' },
+  ]);
+
   useToolbarActions(
     'icon-id',
     <AcUnitIcon style={{ fill: 'currentColor' }} />,
-    (option) => {
+    (options, option) => {
+      setOptions(options);
       console.log(option);
     },
     {
       closeOptionListOnClick: true,
-      options: [{ title: 'name', value: 'val' }],
+      options,
     },
   );
   return <button />;
@@ -62,6 +73,7 @@ export const WithButton = () => {
 - closeOptionListOnClick?: boolean;
 - group?: string | number;
 - setKnob?: boolean;
+- multiChoice?: boolean;
 
 ### active
 
@@ -89,6 +101,8 @@ useToolbarActions(
 
 Will close the option dropdown list when option clicked.
 
+> When multiChoice set to `true` the `closeOptionListOnClick` option has no effect.
+
 ### group
 
 Use this option to sort and group button in their container, when set the `Separator` will be added between button.
@@ -96,3 +110,7 @@ Use this option to sort and group button in their container, when set the `Separ
 ### setKnob
 
 When set to `true` the id of action icon or option key/value will be set to knob.
+
+### multiChoice
+
+When set to `true` user can select multiple option.
