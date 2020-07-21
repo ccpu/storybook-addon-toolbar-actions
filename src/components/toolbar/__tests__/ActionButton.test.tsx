@@ -1,8 +1,10 @@
 import { ActionButton } from '../ActionButton';
-import { shallow } from 'enzyme';
+import { shallow, ShallowWrapper } from 'enzyme';
 import React from 'react';
 import { WithTooltip, IconButton } from '@storybook/components';
 import { useStorybookApi } from '@storybook/api';
+import { CHANGE } from '@storybook/addon-knobs/dist/shared';
+// import { ToolbarActionOption } from '../../../typings';
 
 jest.mock('react', () => ({
   ...jest.requireActual('react'),
@@ -19,7 +21,32 @@ jest.mock('react', () => ({
   },
 }));
 
+const getLinks = (
+  wrapper: ShallowWrapper<
+    unknown,
+    Readonly<unknown>,
+    React.Component<unknown, unknown, any>
+  >,
+  onHide = jest.fn(),
+) => {
+  const withTooltip = wrapper.find(WithTooltip);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const links = (withTooltip.props() as any).tooltip({ onHide });
+  return links.props.links;
+};
+
 describe('ActionButton', () => {
+  const setQueryParamsMock = jest.fn();
+  const emitMock = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useStorybookApi as jest.Mock).mockImplementation(() => ({
+      emit: emitMock,
+      setQueryParams: setQueryParamsMock,
+    }));
+  });
+
   it('should render', () => {
     const wrapper = shallow(<ActionButton id={'id'} onClick={jest.fn()} />);
     expect(wrapper.exists()).toBeTruthy();
@@ -35,48 +62,158 @@ describe('ActionButton', () => {
     expect(onClickMock).toHaveBeenCalledWith('id');
   });
 
-  it('should render options and click', () => {
+  it('should hide on option click', () => {
+    const options = [
+      { key: 'options-key', value: 'options-value' },
+      { key: 'options-key-2', value: 'options-value-2' },
+    ];
     const onClickMock = jest.fn();
-
     const wrapper = shallow(
       <ActionButton
         id={'id'}
         onClick={onClickMock}
+        options={{ closeOptionListOnClick: true, options }}
+      />,
+    );
+    const hideMock = jest.fn();
+    const link = getLinks(wrapper, hideMock)[0];
+    link.onClick({});
+    expect(hideMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not hide on option click', () => {
+    const options = [
+      { key: 'options-key', value: 'options-value' },
+      { key: 'options-key-2', value: 'options-value-2' },
+    ];
+    const onClickMock = jest.fn();
+    const wrapper = shallow(
+      <ActionButton
+        id={'id'}
+        onClick={onClickMock}
+        options={{ closeOptionListOnClick: false, options }}
+      />,
+    );
+    const hideMock = jest.fn();
+    const link = getLinks(wrapper, hideMock)[0];
+    link.onClick({});
+    expect(hideMock).toHaveBeenCalledTimes(0);
+  });
+
+  it('should ignore closeOptionListOnClick hide when multichoice', () => {
+    const options = [
+      { key: 'options-key', value: 'options-value' },
+      { key: 'options-key-2', value: 'options-value-2' },
+    ];
+    const onClickMock = jest.fn();
+    const wrapper = shallow(
+      <ActionButton
+        id={'id'}
+        onClick={onClickMock}
+        options={{ closeOptionListOnClick: true, multiChoice: true, options }}
+      />,
+    );
+    const hideMock = jest.fn();
+    const link = getLinks(wrapper, hideMock)[0];
+    link.onClick({});
+    expect(hideMock).toHaveBeenCalledTimes(0);
+  });
+
+  it('should handle single choice options', async () => {
+    let options = [
+      { key: 'options-key', value: 'options-value' },
+      { key: 'options-key-2', value: 'options-value-2' },
+    ];
+
+    const wrapper = shallow(
+      <ActionButton
+        id={'id'}
+        onClick={(_id, opts) => {
+          options = opts;
+        }}
         options={{
-          closeOptionListOnClick: true,
-          options: [{ key: 'options-key', value: 'options-value' }],
+          options: options,
         }}
       />,
     );
-    const withTooltip = wrapper.find(WithTooltip);
 
-    expect(withTooltip.exists()).toBeTruthy();
+    getLinks(wrapper)[0].onClick();
 
-    const onHideMock = jest.fn();
+    expect(options).toStrictEqual([
+      { active: true, key: 'options-key', value: 'options-value' },
+      { key: 'options-key-2', value: 'options-value-2' },
+    ]);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const link = (withTooltip.props() as any).tooltip({ onHide: onHideMock });
+    wrapper.setProps({ options: { options } });
 
-    expect(link).toBeDefined();
+    getLinks(wrapper)[1].onClick();
 
-    link.props.links[0].onClick();
+    expect(options).toStrictEqual([
+      { active: false, key: 'options-key', value: 'options-value' },
+      { active: true, key: 'options-key-2', value: 'options-value-2' },
+    ]);
 
-    expect(onClickMock).toHaveBeenCalledWith('id', {
-      key: 'options-key',
-      value: 'options-value',
-    });
+    wrapper.setProps({ options: { options } });
 
-    expect(onHideMock).toHaveBeenCalledTimes(1);
+    getLinks(wrapper)[1].onClick();
+
+    expect(options).toStrictEqual([
+      { active: false, key: 'options-key', value: 'options-value' },
+      { active: false, key: 'options-key-2', value: 'options-value-2' },
+    ]);
   });
 
-  it('should set querystring when click icon', () => {
+  it('should handle multiChoice options', async () => {
+    let options = [
+      { key: 'options-key', value: 'options-value' },
+      { key: 'options-key-2', value: 'options-value-2' },
+    ];
+
+    const wrapper = shallow(
+      <ActionButton
+        id={'id'}
+        onClick={(_id, opts) => {
+          options = opts;
+        }}
+        options={{
+          multiChoice: true,
+          options: options,
+        }}
+      />,
+    );
+
+    getLinks(wrapper)[0].onClick();
+
+    wrapper.setProps({ options: { multiChoice: true, options } });
+
+    getLinks(wrapper)[1].onClick();
+
+    expect(options).toStrictEqual([
+      { active: true, key: 'options-key', value: 'options-value' },
+      { active: true, key: 'options-key-2', value: 'options-value-2' },
+    ]);
+
+    wrapper.setProps({ options: { multiChoice: true, options } });
+
+    getLinks(wrapper)[0].onClick();
+
+    expect(options).toStrictEqual([
+      { active: false, key: 'options-key', value: 'options-value' },
+      { active: true, key: 'options-key-2', value: 'options-value-2' },
+    ]);
+  });
+
+  it('should set knob when click icon', () => {
     const setQueryParamsMock = jest.fn();
+    const emitMock = jest.fn();
 
     (useStorybookApi as jest.Mock)
-      .mockImplementationOnce(() => ({
+      .mockImplementation(() => ({
+        emit: emitMock,
         setQueryParams: setQueryParamsMock,
       }))
       .mockImplementationOnce(() => ({
+        emit: emitMock,
         setQueryParams: setQueryParamsMock,
       }));
 
@@ -85,7 +222,7 @@ describe('ActionButton', () => {
         id={'id'}
         onClick={jest.fn()}
         options={{
-          setQueryString: true,
+          setKnob: true,
         }}
       />,
     );
@@ -97,47 +234,127 @@ describe('ActionButton', () => {
       .props()
       .onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
 
-    wrapper.setProps({ options: { active: true, setQueryString: true } });
+    wrapper.setProps({ options: { active: true, setKnob: true } });
 
     expect(setQueryParamsMock).toHaveBeenCalledWith({ 'knob-id': 'true' });
+    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
+      name: 'id',
+      value: true,
+    });
   });
 
-  it('should set querystring when click on options', () => {
-    const setQueryParamsMock = jest.fn();
-
-    (useStorybookApi as jest.Mock)
-      .mockImplementationOnce(() => ({
-        setQueryParams: setQueryParamsMock,
-      }))
-      .mockImplementationOnce(() => ({
-        setQueryParams: setQueryParamsMock,
-      }));
+  it('should set knob when for single choice', async () => {
+    let options = [
+      { key: 'options-key', value: 'options-value' },
+      { key: 'options-key-2', value: 'options-value-2' },
+    ];
 
     const wrapper = shallow(
       <ActionButton
         id={'id'}
-        onClick={jest.fn()}
+        onClick={(_id, opts) => {
+          options = opts;
+        }}
         options={{
-          options: [{ key: 'options-title', value: 'options-value' }],
-          setQueryString: true,
+          options: options,
+          setKnob: true,
         }}
       />,
     );
 
-    expect(setQueryParamsMock).toHaveBeenCalledTimes(0);
+    getLinks(wrapper)[0].onClick();
 
-    const withTooltip = wrapper.find(WithTooltip);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const link = (withTooltip.props() as any).tooltip({ onHide: jest.fn() });
-
-    expect(link).toBeDefined();
-
-    link.props.links[0].onClick();
-
-    wrapper.setProps({ options: { active: true, setQueryString: true } });
+    expect(setQueryParamsMock).toHaveBeenCalledTimes(1);
+    expect(emitMock).toHaveBeenCalledTimes(1);
 
     expect(setQueryParamsMock).toHaveBeenCalledWith({
-      'knob-options-title': 'options-value',
+      'knob-options-key': 'options-value',
     });
+    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
+      name: 'options-key',
+      value: 'options-value',
+    });
+  });
+
+  it('should set knob when for multi choice but only call once, as other option has nut been touch yet', async () => {
+    let options = [
+      { key: 'options-key', value: 'options-value' },
+      { key: 'options-key-2', value: 'options-value-2' },
+    ];
+
+    const wrapper = shallow(
+      <ActionButton
+        id={'id'}
+        onClick={(_id, opts) => {
+          options = opts;
+        }}
+        options={{
+          multiChoice: true,
+          options: options,
+          setKnob: true,
+        }}
+      />,
+    );
+
+    getLinks(wrapper)[0].onClick();
+
+    // should call once, as
+    expect(setQueryParamsMock).toHaveBeenCalledTimes(1);
+    expect(emitMock).toHaveBeenCalledTimes(1);
+
+    expect(setQueryParamsMock).toHaveBeenCalledWith({
+      'knob-options-key': 'options-value',
+    });
+    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
+      name: 'options-key',
+      value: 'options-value',
+    });
+
+    wrapper.setProps({
+      options: { multiChoice: true, options: options, setKnob: true },
+    });
+
+    getLinks(wrapper)[0].onClick();
+
+    expect(setQueryParamsMock).toHaveBeenCalledWith({
+      'knob-options-key': undefined,
+    });
+    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
+      name: 'options-key',
+      value: undefined,
+    });
+  });
+
+  it('should set knob when for multi choice', async () => {
+    let options = [
+      { key: 'options-key', value: 'options-value' },
+      { key: 'options-key-2', value: 'options-value-2' },
+    ];
+
+    const wrapper = shallow(
+      <ActionButton
+        id={'id'}
+        onClick={(_id, opts) => {
+          options = opts;
+        }}
+        options={{
+          multiChoice: true,
+          options: options,
+          setKnob: true,
+        }}
+      />,
+    );
+
+    getLinks(wrapper)[0].onClick();
+
+    wrapper.setProps({
+      options: { multiChoice: true, options, setKnob: true },
+    });
+
+    getLinks(wrapper)[1].onClick();
+
+    // should be one
+    expect(setQueryParamsMock).toHaveBeenCalledTimes(3);
+    expect(emitMock).toHaveBeenCalledTimes(3);
   });
 });

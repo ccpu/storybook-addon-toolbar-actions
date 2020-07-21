@@ -37,10 +37,13 @@ export const useActions = () => {
     };
   }, [actions]);
 
-  const handleClick = useCallback((id: string, opt?: ToolbarActionOption) => {
-    const chanel = addons.getChannel();
-    chanel.emit(id, opt);
-  }, []);
+  const handleClick = useCallback(
+    (id: string, opts?: ToolbarActionOption[], opt?: ToolbarActionOption) => {
+      const chanel = addons.getChannel();
+      chanel.emit(id, opts, opt);
+    },
+    [],
+  );
 
   return { actions, handleClick };
 };

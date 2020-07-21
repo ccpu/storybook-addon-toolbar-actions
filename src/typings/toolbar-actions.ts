@@ -10,7 +10,8 @@ export interface ToolbarActionOptions {
   options?: ToolbarActionOption[];
   group?: string | number;
   closeOptionListOnClick?: boolean;
-  setQueryString?: boolean;
+  setKnob?: boolean;
+  multiChoice?: boolean;
 }
 
 export interface ToolbarAction {

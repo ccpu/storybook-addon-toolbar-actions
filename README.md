@@ -61,7 +61,7 @@ export const WithButton = () => {
 - options?: ToolbarActionOption[];
 - closeOptionListOnClick?: boolean;
 - group?: string | number;
-- setQueryString?: boolean;
+- setKnob?: boolean;
 
 ### active
 
@@ -93,6 +93,6 @@ Will close the option dropdown list when option clicked.
 
 Use this option to sort and group button in their container, when set the `Separator` will be added between button.
 
-### setQueryString
+### setKnob
 
-If set to `true` a queryString will be added to story on option click.
+When set to `true` the id of action icon or option key/value will be set to knob.

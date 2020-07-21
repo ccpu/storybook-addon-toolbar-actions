@@ -6,9 +6,14 @@ import {
   TooltipLinkList,
 } from '@storybook/components';
 import { useStorybookApi } from '@storybook/api';
+import { CHANGE } from '@storybook/addon-knobs/dist/shared';
 
 export interface ActionButtonProps extends ToolbarAction {
-  onClick: (id: string, option?: ToolbarActionOption) => void;
+  onClick: (
+    id: string,
+    options?: ToolbarActionOption[],
+    option?: ToolbarActionOption,
+  ) => void;
 }
 
 const ActionButton: SFC<ActionButtonProps> = (props) => {
@@ -23,17 +28,53 @@ const ActionButton: SFC<ActionButtonProps> = (props) => {
     onClick(id);
   }, [id, onClick]);
 
+  const closeOptionListOnClick =
+    options && !options.multiChoice && options.closeOptionListOnClick;
+
   const handleOptionClick = useCallback(
     (opt: ToolbarActionOption, onHide: () => void) => {
-      onClick(id, opt);
-      if (options.closeOptionListOnClick) {
+      let newOpt: ToolbarActionOption;
+      const newOptions = options.options.map((option) => {
+        if (option.key === opt.key) {
+          newOpt = {
+            ...option,
+            active: !option.active,
+          };
+          return newOpt;
+        }
+        if (!options.multiChoice && option.active) {
+          return {
+            ...option,
+            active: false,
+          };
+        }
+        return option;
+      });
+
+      if (options.setKnob) {
+        const setKnob = (option: ToolbarActionOption) => {
+          // option has not been touch yet
+          if (option.active === undefined) return;
+          const value = option.active ? option.value : undefined;
+          api.setQueryParams({
+            ['knob-' + option.key]: value,
+          });
+          api.emit(CHANGE, { name: option.key, value });
+        };
+        if (options.multiChoice) {
+          newOptions.forEach(setKnob);
+        } else {
+          setKnob(newOpt);
+        }
+      }
+
+      onClick(id, newOptions, newOpt);
+
+      if (closeOptionListOnClick) {
         onHide();
       }
-      if (options.setQueryString) {
-        api.setQueryParams({ ['knob-' + opt.key]: opt.value });
-      }
     },
-    [api, id, onClick, options],
+    [api, closeOptionListOnClick, id, onClick, options],
   );
 
   useEffect(() => {
@@ -41,10 +82,11 @@ const ActionButton: SFC<ActionButtonProps> = (props) => {
       options &&
       !options.options &&
       clicked.current &&
-      options.setQueryString &&
+      options.setKnob &&
       options.active !== undefined
     ) {
       api.setQueryParams({ ['knob-' + id]: options.active + '' });
+      api.emit(CHANGE, { name: id, value: options.active });
     }
   }, [api, id, options]);
 
@@ -59,14 +101,14 @@ const ActionButton: SFC<ActionButtonProps> = (props) => {
               links={options.options.map((opt) => {
                 return {
                   active: opt.active,
-                  id: opt.value,
+                  id: opt.key,
                   onClick: () => handleOptionClick(opt, onHide),
                   title: opt.title || opt.key,
                 };
               })}
             />
           )}
-          closeOnClick={true}
+          closeOnClick={closeOptionListOnClick}
         >
           <IconButton
             key="tool"

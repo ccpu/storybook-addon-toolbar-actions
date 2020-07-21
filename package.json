@@ -57,11 +57,13 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@storybook/addon-knobs": "^5.3.19",
     "@storybook/addons": "^5.3.19",
     "@storybook/api": "^5.3.19",
     "@storybook/components": "^5.3.19",
     "@storybook/react": "^5.3.19",
     "@testing-library/react-hooks": "^3.3.0",
+    "hash-sum": "^2.0.0",
     "react": "^16.13.1"
   }
 }
