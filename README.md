@@ -53,13 +53,13 @@ export const WithOptions = () => {
   useToolbarActions(
     'icon-id',
     <AcUnitIcon style={{ fill: 'currentColor' }} />,
-    (options, option) => {
-      setOptions(options);
-      console.log(option);
-    },
     {
       closeOptionListOnClick: true,
       options,
+      onClick:(options, option) => {
+      setOptions(options);
+      console.log(option);
+    },
     },
   );
   return <button />;
@@ -72,7 +72,8 @@ export const WithOptions = () => {
 - options?: ToolbarActionOption[];
 - closeOptionListOnClick?: boolean;
 - group?: string | number;
-- setKnob?: boolean;
+- setToKnob?: string;
+- stateKnobValues
 - multiChoice?: boolean;
 
 ### active
@@ -82,20 +83,6 @@ Will activate the storybook IconButton indicator.
 ### options
 
 If set a dropdown list will be open under the button:
-
-```js
-useToolbarActions(
-  'icon-id',
-  <AcUnitIcon style={{ fill: 'currentColor' }} />,
-  (option) => {
-    console.log(option);
-  },
-  {
-    closeOptionListOnClick: true,
-    options: [{ title: 'name', value: 'val' }],
-  },
-);
-```
 
 ### closeOptionListOnClick
 
@@ -107,9 +94,34 @@ Will close the option dropdown list when option clicked.
 
 Use this option to sort and group button in their container, when set the `Separator` will be added between button.
 
-### setKnob
+### setToKnob
 
-When set to `true` the id of action icon or option key/value will be set to knob.
+The value of this option will be used for knob:
+
+```js
+setToKnob: 'locale';
+// will be knob-locale=value
+```
+
+The Value of the knob set as follow:
+
+Icon Button:
+
+Required to set `active` to `true`/`false`, if `stateKnobValues` not set the `true`/`false` will be the value of knob.
+
+When `stateKnobValues` set, the value of `stateKnobValues.active` or `stateKnobValues.inactive` will be used depending on the `active` state.
+
+Single choice option:
+
+When `options` provided and `multiChoice` not set, the value of selected option will be set to knob.
+
+Multi choice option:
+
+When `options` provided and `multiChoice` set to `true`, an array of selected option will be set to knob.
+
+### stateKnobValues
+
+When `stateKnobValues` set, the value of `stateKnobValues.active` or `stateKnobValues.inactive` will be used depending on the `active` state.
 
 ### multiChoice
 

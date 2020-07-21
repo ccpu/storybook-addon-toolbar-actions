@@ -14,18 +14,18 @@ const Tool: SFC = () => {
       <Separator />
       {actions
         .sort((a, b) =>
-          a.options && a.options.group && b.options && b.options.group
-            ? a.options.group
+          a.setting && a.setting.group && b.setting && b.setting.group
+            ? a.setting.group
                 .toString()
-                .localeCompare(b.options.group.toString())
+                .localeCompare(b.setting.group.toString())
             : 0,
         )
         .map((action) => {
           const isNewGroup =
-            action.options &&
+            action.setting &&
             currentGroup &&
-            action.options.group !== currentGroup;
-          currentGroup = action.options && action.options.group;
+            action.setting.group !== currentGroup;
+          currentGroup = action.setting && action.setting.group;
           return (
             <Fragment key={action.id}>
               {isNewGroup && <Separator />}

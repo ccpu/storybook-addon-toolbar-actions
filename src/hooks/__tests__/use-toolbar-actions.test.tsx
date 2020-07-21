@@ -4,7 +4,6 @@ import AcUnitIcon from '@material-ui/icons/AcUnit';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { getSearch } from '../utils';
-import { CHANGE } from '@storybook/addon-knobs/dist/shared';
 
 jest.unmock('@storybook/addons');
 jest.mock('../utils//get-search');
@@ -23,7 +22,7 @@ describe('useToolbarActions', () => {
   });
 
   it('should handle svg icon as string', async () => {
-    renderHook(() => useToolbarActions('icon-id', 'svg-string', jest.fn()));
+    renderHook(() => useToolbarActions('icon-id', 'svg-string'));
 
     await new Promise((resolve) => setImmediate(resolve));
 
@@ -35,7 +34,7 @@ describe('useToolbarActions', () => {
   });
 
   it('should convert jsx component to string', async () => {
-    renderHook(() => useToolbarActions('icon-id', <AcUnitIcon />, jest.fn()));
+    renderHook(() => useToolbarActions('icon-id', <AcUnitIcon />));
 
     await new Promise((resolve) => setImmediate(resolve));
     expect(onEmitMock).toHaveBeenCalledWith('TOOLBAR_ACTIONS', {
@@ -46,7 +45,7 @@ describe('useToolbarActions', () => {
   });
 
   it('should convert component to string', async () => {
-    renderHook(() => useToolbarActions('icon-id', AcUnitIcon, jest.fn()));
+    renderHook(() => useToolbarActions('icon-id', AcUnitIcon));
 
     await new Promise((resolve) => setImmediate(resolve));
 
@@ -61,27 +60,28 @@ describe('useToolbarActions', () => {
   it('should set knob on startup for icon', async () => {
     const callbackMock = jest.fn();
     (getSearch as jest.Mock).mockReturnValueOnce(
-      '?id=button--text&knob-icon-id=true',
+      '?id=button--text&knob-knobKey=true',
     );
     renderHook(() =>
-      useToolbarActions('icon-id', AcUnitIcon, callbackMock, { setKnob: true }),
+      useToolbarActions('icon-id', AcUnitIcon, {
+        onClick: callbackMock,
+        setToKnob: 'knobKey',
+      }),
     );
 
     expect(callbackMock).toHaveBeenCalledTimes(1);
-    expect(onEmitMock).toHaveBeenCalledTimes(2);
-    expect(onEmitMock).toHaveBeenCalledWith(CHANGE, {
-      name: 'icon-id',
-      value: 'true',
-    });
   });
 
   it('should not set knob on startup for icon if value undefined', async () => {
     const callbackMock = jest.fn();
     (getSearch as jest.Mock).mockReturnValueOnce(
-      '?id=button--text&knob-icon-id=undefined',
+      '?id=button--text&knob-knobKey=undefined',
     );
     renderHook(() =>
-      useToolbarActions('icon-id', AcUnitIcon, callbackMock, { setKnob: true }),
+      useToolbarActions('icon-id', AcUnitIcon, {
+        onClick: callbackMock,
+        setToKnob: 'knobKey',
+      }),
     );
 
     expect(callbackMock).toHaveBeenCalledTimes(0);
@@ -91,15 +91,16 @@ describe('useToolbarActions', () => {
   it('should set knob on startup for single choice options', async () => {
     const callbackMock = jest.fn();
     (getSearch as jest.Mock).mockReturnValueOnce(
-      '?id=button--text&knob-key-1=val-1',
+      '?id=button--text&knob-knobKey=val-1',
     );
     renderHook(() =>
-      useToolbarActions('icon-id', AcUnitIcon, callbackMock, {
+      useToolbarActions('icon-id', AcUnitIcon, {
+        onClick: callbackMock,
         options: [
           { key: 'key-1', value: 'val-1' },
           { key: 'key-2', value: 'val-2' },
         ],
-        setKnob: true,
+        setToKnob: 'knobKey',
       }),
     );
 
@@ -111,26 +112,21 @@ describe('useToolbarActions', () => {
       ],
       { active: true, key: 'key-1', value: 'val-1' },
     );
-
-    expect(onEmitMock).toHaveBeenCalledTimes(2);
-    expect(onEmitMock).toHaveBeenCalledWith(CHANGE, {
-      name: 'key-1',
-      value: 'val-1',
-    });
   });
 
   it('should not set knob on startup for single choice options if knob is undefined', async () => {
     const callbackMock = jest.fn();
     (getSearch as jest.Mock).mockReturnValueOnce(
-      '?id=button--text&knob-key-1=undefined',
+      '?id=button--text&knob-knobKey=undefined',
     );
     renderHook(() =>
-      useToolbarActions('icon-id', AcUnitIcon, callbackMock, {
+      useToolbarActions('icon-id', AcUnitIcon, {
+        onClick: callbackMock,
         options: [
           { key: 'key-1', value: 'val-1' },
           { key: 'key-2', value: 'val-2' },
         ],
-        setKnob: true,
+        setToKnob: 'knobKey',
       }),
     );
 
@@ -141,37 +137,25 @@ describe('useToolbarActions', () => {
   it('should set knob on startup for multi choice options', async () => {
     const callbackMock = jest.fn();
     (getSearch as jest.Mock).mockReturnValueOnce(
-      '?id=button--text&knob-key-1=val-1&knob-key-2=val-2',
+      '?id=button--text&knob-knobKey=val-1,val-2',
     );
 
     renderHook(() =>
-      useToolbarActions('icon-id', AcUnitIcon, callbackMock, {
+      useToolbarActions('icon-id', AcUnitIcon, {
         multiChoice: true,
+        onClick: callbackMock,
         options: [
           { key: 'key-1', value: 'val-1' },
           { key: 'key-2', value: 'val-2' },
         ],
-        setKnob: true,
+        setToKnob: 'knobKey',
       }),
     );
 
     expect(callbackMock).toHaveBeenCalledTimes(1);
-    expect(callbackMock).toHaveBeenCalledWith(
-      [
-        { active: true, key: 'key-1', value: 'val-1' },
-        { active: true, key: 'key-2', value: 'val-2' },
-      ],
-      undefined,
-    );
-
-    expect(onEmitMock).toHaveBeenCalledTimes(3);
-    expect(onEmitMock).toHaveBeenCalledWith(CHANGE, {
-      name: 'key-1',
-      value: 'val-1',
-    });
-    expect(onEmitMock).toHaveBeenCalledWith(CHANGE, {
-      name: 'key-2',
-      value: 'val-2',
-    });
+    expect(callbackMock).toHaveBeenCalledWith([
+      { active: true, key: 'key-1', value: 'val-1' },
+      { active: true, key: 'key-2', value: 'val-2' },
+    ]);
   });
 });

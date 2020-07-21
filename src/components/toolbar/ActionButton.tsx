@@ -16,25 +16,40 @@ export interface ActionButtonProps extends ToolbarAction {
   ) => void;
 }
 
-const ActionButton: SFC<ActionButtonProps> = (props) => {
-  const { id, onClick, icon, options } = props;
+const ActionButton: SFC<ActionButtonProps> = ({
+  id,
+  onClick,
+  icon,
+  setting = {},
+}) => {
+  const {
+    options,
+    closeOptionListOnClick,
+    setToKnob,
+    multiChoice,
+    active: iconActive,
+    stateKnobValues,
+  } = setting;
 
   const clicked = useRef<boolean>(false);
 
   const api = useStorybookApi();
+
+  const currentStory = api.getCurrentStoryData();
+
+  const currentStoryId = useRef<string>();
 
   const handleClick = useCallback(() => {
     clicked.current = true;
     onClick(id);
   }, [id, onClick]);
 
-  const closeOptionListOnClick =
-    options && !options.multiChoice && options.closeOptionListOnClick;
+  const closeOnClick = setting && !multiChoice && closeOptionListOnClick;
 
   const handleOptionClick = useCallback(
     (opt: ToolbarActionOption, onHide: () => void) => {
       let newOpt: ToolbarActionOption;
-      const newOptions = options.options.map((option) => {
+      const newOptions = options.map((option) => {
         if (option.key === opt.key) {
           newOpt = {
             ...option,
@@ -42,7 +57,7 @@ const ActionButton: SFC<ActionButtonProps> = (props) => {
           };
           return newOpt;
         }
-        if (!options.multiChoice && option.active) {
+        if (!multiChoice && option.active) {
           return {
             ...option,
             active: false,
@@ -51,54 +66,82 @@ const ActionButton: SFC<ActionButtonProps> = (props) => {
         return option;
       });
 
-      if (options.setKnob) {
-        const setKnob = (option: ToolbarActionOption) => {
-          // option has not been touch yet
-          if (option.active === undefined) return;
-          const value = option.active ? option.value : undefined;
+      if (setToKnob) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const setKnob = (value: any) => {
           api.setQueryParams({
-            ['knob-' + option.key]: value,
+            ['knob-' + setToKnob]: value,
           });
-          api.emit(CHANGE, { name: option.key, value });
+          api.emit(CHANGE, { name: setToKnob, value });
         };
-        if (options.multiChoice) {
-          newOptions.forEach(setKnob);
+        if (multiChoice) {
+          const knobVals = newOptions.filter((x) => x.active);
+          setKnob(knobVals.length > 0 ? knobVals.map((x) => x.value) : null);
         } else {
-          setKnob(newOpt);
+          setKnob(newOpt.active ? newOpt.value : null);
         }
       }
 
       onClick(id, newOptions, newOpt);
 
-      if (closeOptionListOnClick) {
+      if (closeOnClick) {
         onHide();
       }
     },
-    [api, closeOptionListOnClick, id, onClick, options],
+    [api, closeOnClick, id, multiChoice, onClick, options, setToKnob],
   );
 
   useEffect(() => {
     if (
-      options &&
-      !options.options &&
+      setting &&
+      !options &&
       clicked.current &&
-      options.setKnob &&
-      options.active !== undefined
+      setToKnob &&
+      iconActive !== undefined
     ) {
-      api.setQueryParams({ ['knob-' + id]: options.active + '' });
-      api.emit(CHANGE, { name: id, value: options.active });
+      clicked.current = false;
+      const paramKey = 'knob-' + setToKnob;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let val: any = iconActive;
+      if (stateKnobValues) {
+        val = iconActive ? stateKnobValues.active : stateKnobValues.inactive;
+      }
+
+      api.setQueryParams({
+        [paramKey]: val + '',
+      });
+
+      api.emit(CHANGE, { name: setToKnob, value: val });
     }
-  }, [api, id, options]);
+  }, [iconActive, api, stateKnobValues, id, options, setToKnob, setting]);
+
+  useEffect(() => {
+    if (
+      !setToKnob ||
+      !currentStory.id ||
+      currentStory.id === currentStoryId.current
+    )
+      return;
+    currentStoryId.current = currentStory.id;
+    const paramKey = 'knob-' + setToKnob;
+    if (setToKnob) {
+      // !not working there is problem with storybook
+      api.setQueryParams({
+        [paramKey]: null,
+      });
+    }
+  }, [api, currentStory.id, setToKnob]);
 
   return (
     <>
-      {options && options.options ? (
+      {setting && options ? (
         <WithTooltip
           placement="top"
           trigger="click"
           tooltip={({ onHide }) => (
             <TooltipLinkList
-              links={options.options.map((opt) => {
+              links={options.map((opt) => {
                 return {
                   active: opt.active,
                   id: opt.key,
@@ -108,12 +151,12 @@ const ActionButton: SFC<ActionButtonProps> = (props) => {
               })}
             />
           )}
-          closeOnClick={closeOptionListOnClick}
+          closeOnClick={closeOnClick}
         >
           <IconButton
             key="tool"
             title="tool icon"
-            active={options && options.active}
+            active={iconActive}
             dangerouslySetInnerHTML={{ __html: icon }}
           />
         </WithTooltip>
@@ -122,7 +165,7 @@ const ActionButton: SFC<ActionButtonProps> = (props) => {
           onClick={handleClick}
           key="tool"
           title="tool icon"
-          active={options && options.active}
+          active={iconActive}
           dangerouslySetInnerHTML={{ __html: icon }}
         />
       )}

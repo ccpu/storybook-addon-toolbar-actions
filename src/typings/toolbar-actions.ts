@@ -5,18 +5,26 @@ export interface ToolbarActionOption {
   active?: boolean;
 }
 
-export interface ToolbarActionOptions {
+export interface ToolbarActionSetting {
   active?: boolean;
   options?: ToolbarActionOption[];
   group?: string | number;
   closeOptionListOnClick?: boolean;
-  setKnob?: boolean;
+  setToKnob?: string;
+  onClick?: (
+    options?: ToolbarActionOption[],
+    option?: ToolbarActionOption,
+  ) => void;
+  stateKnobValues?: {
+    active: string;
+    inactive: string;
+  };
   multiChoice?: boolean;
 }
 
 export interface ToolbarAction {
   icon?: string;
   id: string;
-  options?: ToolbarActionOptions;
+  setting?: ToolbarActionSetting;
   remove?: boolean;
 }

@@ -1,26 +1,17 @@
 import { useEffect, useRef } from 'react';
 
 import addons from '@storybook/addons';
-import {
-  ToolbarAction,
-  ToolbarActionOptions,
-  ToolbarActionOption,
-} from '../typings';
+import { ToolbarAction, ToolbarActionSetting } from '../typings';
 import { renderToString } from 'react-dom/server';
 import React from 'react';
 import { ADDON_ID } from '../constants';
-import { CHANGE } from '@storybook/addon-knobs/dist/shared';
 import sum from 'hash-sum';
 import { getSearch } from './utils';
 
 export function useToolbarActions<T extends React.ReactNode>(
   iconId: string,
   Icon: T,
-  callback: (
-    options?: ToolbarActionOption[],
-    option?: ToolbarActionOption,
-  ) => void,
-  options?: ToolbarActionOptions,
+  options?: ToolbarActionSetting,
 ) {
   const prevHash = useRef<string>(null);
 
@@ -37,38 +28,46 @@ export function useToolbarActions<T extends React.ReactNode>(
 
     prevHash.current = hash;
 
-    if (options && options.setKnob) {
-      const chanel = addons.getChannel();
+    if (options && options.setToKnob) {
+      const search = getSearch();
+      const urlParams = new URLSearchParams(search);
+      const knobVal = urlParams.get('knob-' + options.setToKnob);
 
-      const urlParams = new URLSearchParams(getSearch());
-
-      const setKnob = (key: string) => {
-        const knobVal = urlParams.get('knob-' + key);
-        if (knobVal && knobVal !== 'undefined') {
-          chanel.emit(CHANGE, { name: key, value: knobVal });
-          return true;
-        }
-        return false;
-      };
-
-      if (options.options) {
-        const knobOptions = options.options.map((opt) => {
-          if (setKnob(opt.key)) {
-            opt.active = true;
+      if (knobVal && knobVal != 'undefined') {
+        if (options.options) {
+          if (options.multiChoice) {
+            const knobOptions = knobVal.split(',');
+            const newOptions = options.options.map((opt) => {
+              if (knobOptions.indexOf(opt.value) !== -1) {
+                opt.active = true;
+              }
+              return opt;
+            });
+            if (options.onClick) {
+              options.onClick(newOptions);
+            }
+          } else {
+            const newOptions = options.options.map((x) => {
+              if (knobVal === x.value) {
+                x.active = true;
+              }
+              return x;
+            });
+            if (options.onClick) {
+              options.onClick(
+                newOptions,
+                newOptions.find((x) => x.active),
+              );
+            }
           }
-          return opt;
-        });
-        const active = knobOptions.filter((x) => x.active);
-        if (active && active.length) {
-          callback(knobOptions, options.multiChoice ? undefined : active[0]);
-        }
-      } else {
-        if (setKnob(iconId)) {
-          callback();
+        } else {
+          if (options.onClick) {
+            options.onClick();
+          }
         }
       }
     }
-  }, [callback, iconId, options]);
+  }, [iconId, options]);
 
   useEffect(() => {
     const chanel = addons.getChannel();
@@ -81,13 +80,17 @@ export function useToolbarActions<T extends React.ReactNode>(
           ? renderToString(Icon)
           : renderToString(<IconComponent />),
       id: iconId,
-      options,
+      setting: options,
     } as ToolbarAction);
 
-    chanel.on(iconId, callback);
+    if (options && options.onClick) {
+      chanel.on(iconId, options.onClick);
+    }
 
     return () => {
-      chanel.off(iconId, callback);
+      if (options && options.onClick) {
+        chanel.off(iconId, options.onClick);
+      }
     };
-  }, [Icon, iconId, callback, options]);
+  }, [Icon, iconId, options]);
 }

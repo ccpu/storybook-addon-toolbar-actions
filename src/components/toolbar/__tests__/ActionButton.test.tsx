@@ -4,7 +4,7 @@ import React from 'react';
 import { WithTooltip, IconButton } from '@storybook/components';
 import { useStorybookApi } from '@storybook/api';
 import { CHANGE } from '@storybook/addon-knobs/dist/shared';
-// import { ToolbarActionOption } from '../../../typings';
+import { ToolbarActionSetting } from '../../../typings';
 
 jest.mock('react', () => ({
   ...jest.requireActual('react'),
@@ -25,7 +25,7 @@ const getLinks = (
   wrapper: ShallowWrapper<
     unknown,
     Readonly<unknown>,
-    React.Component<unknown, unknown, any>
+    React.Component<unknown, unknown, unknown>
   >,
   onHide = jest.fn(),
 ) => {
@@ -38,11 +38,18 @@ const getLinks = (
 describe('ActionButton', () => {
   const setQueryParamsMock = jest.fn();
   const emitMock = jest.fn();
+  let selected = false;
 
   beforeEach(() => {
+    selected = false;
     jest.clearAllMocks();
     (useStorybookApi as jest.Mock).mockImplementation(() => ({
       emit: emitMock,
+      getCurrentStoryData: () => ({
+        id: 'story-id',
+      }),
+      getQueryParam: () => !selected,
+      on: jest.fn(),
       setQueryParams: setQueryParamsMock,
     }));
   });
@@ -72,7 +79,7 @@ describe('ActionButton', () => {
       <ActionButton
         id={'id'}
         onClick={onClickMock}
-        options={{ closeOptionListOnClick: true, options }}
+        setting={{ closeOptionListOnClick: true, options }}
       />,
     );
     const hideMock = jest.fn();
@@ -91,7 +98,7 @@ describe('ActionButton', () => {
       <ActionButton
         id={'id'}
         onClick={onClickMock}
-        options={{ closeOptionListOnClick: false, options }}
+        setting={{ closeOptionListOnClick: false, options }}
       />,
     );
     const hideMock = jest.fn();
@@ -110,7 +117,7 @@ describe('ActionButton', () => {
       <ActionButton
         id={'id'}
         onClick={onClickMock}
-        options={{ closeOptionListOnClick: true, multiChoice: true, options }}
+        setting={{ closeOptionListOnClick: true, multiChoice: true, options }}
       />,
     );
     const hideMock = jest.fn();
@@ -131,7 +138,7 @@ describe('ActionButton', () => {
         onClick={(_id, opts) => {
           options = opts;
         }}
-        options={{
+        setting={{
           options: options,
         }}
       />,
@@ -144,7 +151,7 @@ describe('ActionButton', () => {
       { key: 'options-key-2', value: 'options-value-2' },
     ]);
 
-    wrapper.setProps({ options: { options } });
+    wrapper.setProps({ setting: { options } });
 
     getLinks(wrapper)[1].onClick();
 
@@ -153,7 +160,7 @@ describe('ActionButton', () => {
       { active: true, key: 'options-key-2', value: 'options-value-2' },
     ]);
 
-    wrapper.setProps({ options: { options } });
+    wrapper.setProps({ setting: { options } });
 
     getLinks(wrapper)[1].onClick();
 
@@ -169,22 +176,24 @@ describe('ActionButton', () => {
       { key: 'options-key-2', value: 'options-value-2' },
     ];
 
+    const setting: ToolbarActionSetting = {
+      multiChoice: true,
+      options: options,
+    };
+
     const wrapper = shallow(
       <ActionButton
         id={'id'}
         onClick={(_id, opts) => {
           options = opts;
         }}
-        options={{
-          multiChoice: true,
-          options: options,
-        }}
+        setting={setting}
       />,
     );
 
     getLinks(wrapper)[0].onClick();
 
-    wrapper.setProps({ options: { multiChoice: true, options } });
+    wrapper.setProps({ setting: { ...setting, options } });
 
     getLinks(wrapper)[1].onClick();
 
@@ -193,7 +202,7 @@ describe('ActionButton', () => {
       { active: true, key: 'options-key-2', value: 'options-value-2' },
     ]);
 
-    wrapper.setProps({ options: { multiChoice: true, options } });
+    wrapper.setProps({ setting: { ...setting, options } });
 
     getLinks(wrapper)[0].onClick();
 
@@ -203,43 +212,95 @@ describe('ActionButton', () => {
     ]);
   });
 
-  it('should set knob when click icon', () => {
-    const setQueryParamsMock = jest.fn();
-    const emitMock = jest.fn();
-
-    (useStorybookApi as jest.Mock)
-      .mockImplementation(() => ({
-        emit: emitMock,
-        setQueryParams: setQueryParamsMock,
-      }))
-      .mockImplementationOnce(() => ({
-        emit: emitMock,
-        setQueryParams: setQueryParamsMock,
-      }));
+  it('should set true/false knob when click icon', () => {
+    const setting: ToolbarActionSetting = {
+      setToKnob: 'knobKey',
+    };
 
     const wrapper = shallow(
-      <ActionButton
-        id={'id'}
-        onClick={jest.fn()}
-        options={{
-          setKnob: true,
-        }}
-      />,
+      <ActionButton id={'id'} onClick={jest.fn()} setting={setting} />,
     );
 
-    expect(setQueryParamsMock).toHaveBeenCalledTimes(0);
+    // should call to remove query string for new story
+    expect(setQueryParamsMock).toHaveBeenCalledTimes(1);
 
     wrapper
       .find(IconButton)
       .props()
       .onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
 
-    wrapper.setProps({ options: { active: true, setKnob: true } });
+    wrapper.setProps({ setting: { ...setting, active: true } });
 
-    expect(setQueryParamsMock).toHaveBeenCalledWith({ 'knob-id': 'true' });
+    expect(setQueryParamsMock).toHaveBeenCalledWith({ 'knob-knobKey': 'true' });
+
     expect(emitMock).toHaveBeenCalledWith(CHANGE, {
-      name: 'id',
+      name: 'knobKey',
       value: true,
+    });
+
+    wrapper
+      .find(IconButton)
+      .props()
+      .onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+
+    wrapper.setProps({ setting: { ...setting, active: false } });
+
+    expect(setQueryParamsMock).toHaveBeenCalledWith({
+      'knob-knobKey': 'false',
+    });
+
+    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
+      name: 'knobKey',
+      value: false,
+    });
+  });
+
+  it('should set stateKnobValues for knob when click icon', () => {
+    const setting: ToolbarActionSetting = {
+      setToKnob: 'knobKey',
+      stateKnobValues: {
+        active: 'active',
+        inactive: 'inActive',
+      },
+    };
+
+    const wrapper = shallow(
+      <ActionButton id={'id'} onClick={jest.fn()} setting={setting} />,
+    );
+
+    // should call to remove query string for new story
+    expect(setQueryParamsMock).toHaveBeenCalledTimes(1);
+
+    wrapper
+      .find(IconButton)
+      .props()
+      .onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+
+    wrapper.setProps({ setting: { ...setting, active: true } });
+
+    expect(setQueryParamsMock).toHaveBeenCalledWith({
+      'knob-knobKey': 'active',
+    });
+
+    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
+      name: 'knobKey',
+      value: 'active',
+    });
+
+    wrapper
+      .find(IconButton)
+      .props()
+      .onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+
+    wrapper.setProps({ setting: { ...setting, active: false } });
+
+    expect(setQueryParamsMock).toHaveBeenCalledWith({
+      'knob-knobKey': 'inActive',
+    });
+
+    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
+      name: 'knobKey',
+      value: 'inActive',
     });
   });
 
@@ -255,73 +316,25 @@ describe('ActionButton', () => {
         onClick={(_id, opts) => {
           options = opts;
         }}
-        options={{
+        setting={{
           options: options,
-          setKnob: true,
+          setToKnob: 'knobKey',
         }}
       />,
     );
 
     getLinks(wrapper)[0].onClick();
 
-    expect(setQueryParamsMock).toHaveBeenCalledTimes(1);
+    // one extra to remove query string for new story
+    expect(setQueryParamsMock).toHaveBeenCalledTimes(2);
     expect(emitMock).toHaveBeenCalledTimes(1);
 
     expect(setQueryParamsMock).toHaveBeenCalledWith({
-      'knob-options-key': 'options-value',
+      'knob-knobKey': 'options-value',
     });
     expect(emitMock).toHaveBeenCalledWith(CHANGE, {
-      name: 'options-key',
+      name: 'knobKey',
       value: 'options-value',
-    });
-  });
-
-  it('should set knob when for multi choice but only call once, as other option has nut been touch yet', async () => {
-    let options = [
-      { key: 'options-key', value: 'options-value' },
-      { key: 'options-key-2', value: 'options-value-2' },
-    ];
-
-    const wrapper = shallow(
-      <ActionButton
-        id={'id'}
-        onClick={(_id, opts) => {
-          options = opts;
-        }}
-        options={{
-          multiChoice: true,
-          options: options,
-          setKnob: true,
-        }}
-      />,
-    );
-
-    getLinks(wrapper)[0].onClick();
-
-    // should call once, as
-    expect(setQueryParamsMock).toHaveBeenCalledTimes(1);
-    expect(emitMock).toHaveBeenCalledTimes(1);
-
-    expect(setQueryParamsMock).toHaveBeenCalledWith({
-      'knob-options-key': 'options-value',
-    });
-    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
-      name: 'options-key',
-      value: 'options-value',
-    });
-
-    wrapper.setProps({
-      options: { multiChoice: true, options: options, setKnob: true },
-    });
-
-    getLinks(wrapper)[0].onClick();
-
-    expect(setQueryParamsMock).toHaveBeenCalledWith({
-      'knob-options-key': undefined,
-    });
-    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
-      name: 'options-key',
-      value: undefined,
     });
   });
 
@@ -331,30 +344,49 @@ describe('ActionButton', () => {
       { key: 'options-key-2', value: 'options-value-2' },
     ];
 
+    const setting: ToolbarActionSetting = {
+      multiChoice: true,
+      options: options,
+      setToKnob: 'knobKey',
+    };
+
     const wrapper = shallow(
       <ActionButton
         id={'id'}
         onClick={(_id, opts) => {
           options = opts;
         }}
-        options={{
-          multiChoice: true,
-          options: options,
-          setKnob: true,
-        }}
+        setting={setting}
       />,
     );
 
     getLinks(wrapper)[0].onClick();
 
-    wrapper.setProps({
-      options: { multiChoice: true, options, setKnob: true },
+    // should call once, as
+    expect(setQueryParamsMock).toHaveBeenCalledTimes(2);
+    expect(emitMock).toHaveBeenCalledTimes(1);
+
+    expect(setQueryParamsMock).toHaveBeenCalledWith({
+      'knob-knobKey': ['options-value'],
+    });
+    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
+      name: 'knobKey',
+      value: ['options-value'],
     });
 
-    getLinks(wrapper)[1].onClick();
+    wrapper.setProps({
+      setting: { ...setting, options },
+    });
 
-    // should be one
-    expect(setQueryParamsMock).toHaveBeenCalledTimes(3);
-    expect(emitMock).toHaveBeenCalledTimes(3);
+    getLinks(wrapper)[0].onClick();
+
+    expect(setQueryParamsMock).toHaveBeenCalledWith({
+      'knob-knobKey': null,
+    });
+
+    expect(emitMock).toHaveBeenCalledWith(CHANGE, {
+      name: 'knobKey',
+      value: null,
+    });
   });
 });
