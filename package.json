@@ -1,6 +1,6 @@
 {
   "name": "storybook-addon-toolbar-actions",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "An Addon to add a button from within any react functional component to the storybook toolbar",
   "author": "m.doaie <mdoaie@yahoo.co.uk>",
   "main": "dist",

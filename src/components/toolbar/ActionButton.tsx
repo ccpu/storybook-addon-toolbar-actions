@@ -44,7 +44,9 @@ const ActionButton: SFC<ActionButtonProps> = ({
     onClick(id);
   }, [id, onClick]);
 
-  const closeOnClick = setting && !multiChoice && closeOptionListOnClick;
+  const closeOnClick =
+    !multiChoice &&
+    (closeOptionListOnClick == undefined || closeOptionListOnClick === true);
 
   const handleOptionClick = useCallback(
     (opt: ToolbarActionOption, onHide: () => void) => {

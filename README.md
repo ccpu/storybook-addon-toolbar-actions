@@ -54,7 +54,6 @@ export const WithOptions = () => {
     'icon-id',
     <AcUnitIcon style={{ fill: 'currentColor' }} />,
     {
-      closeOptionListOnClick: true,
       options,
       onClick:(options, option) => {
       setOptions(options);
