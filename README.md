@@ -1,4 +1,4 @@
-# node-typescript-boilerplate
+# storybook-addon-toolbar-actions
 
 An Addon to add a button from within any react functional component to the storybook toolbar.
 
