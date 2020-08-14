@@ -133,7 +133,7 @@ const ActionButton: SFC<ActionButtonProps> = ({
         [paramKey]: null,
       });
     }
-  }, [api, currentStory.id, setToKnob]);
+  }, [api, currentStory, setToKnob]);
 
   return (
     <>
