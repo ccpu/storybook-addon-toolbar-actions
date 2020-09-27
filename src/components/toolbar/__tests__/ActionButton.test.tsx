@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ActionButton } from '../ActionButton';
 import { shallow, ShallowWrapper } from 'enzyme';
 import React from 'react';
@@ -65,7 +66,7 @@ describe('ActionButton', () => {
     wrapper
       .find(IconButton)
       .props()
-      .onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+      .onClick({} as any);
     expect(onClickMock).toHaveBeenCalledWith('id');
   });
 
@@ -227,7 +228,7 @@ describe('ActionButton', () => {
     wrapper
       .find(IconButton)
       .props()
-      .onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+      .onClick({} as any);
 
     wrapper.setProps({ setting: { ...setting, active: true } });
 
@@ -241,7 +242,7 @@ describe('ActionButton', () => {
     wrapper
       .find(IconButton)
       .props()
-      .onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+      .onClick({} as any);
 
     wrapper.setProps({ setting: { ...setting, active: false } });
 
@@ -274,7 +275,7 @@ describe('ActionButton', () => {
     wrapper
       .find(IconButton)
       .props()
-      .onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+      .onClick({} as any);
 
     wrapper.setProps({ setting: { ...setting, active: true } });
 
@@ -290,7 +291,7 @@ describe('ActionButton', () => {
     wrapper
       .find(IconButton)
       .props()
-      .onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+      .onClick({} as any);
 
     wrapper.setProps({ setting: { ...setting, active: false } });
 
