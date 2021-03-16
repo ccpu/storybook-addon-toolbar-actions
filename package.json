@@ -66,5 +66,12 @@
     "hash-sum": "^2.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
+  },
+  "keywords": [
+    "storybook-addon",
+    "appearance"
+  ],
+  "storybook": {
+    "displayName": "Toolbar actions"
   }
 }
