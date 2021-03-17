@@ -3,6 +3,7 @@ import { types as addonsTypes } from '@storybook/addons';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const addonsMock = jest.createMockFromModule('@storybook/addons') as any;
 export const types = addonsTypes;
 
