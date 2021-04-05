@@ -1,9 +1,9 @@
-import React, { SFC, Fragment } from 'react';
+import React, { FC, Fragment } from 'react';
 import { Separator } from '@storybook/components';
 import { ActionButton } from './ActionButton';
 import { useActions } from '../../hooks';
 
-const Tool: SFC = () => {
+const Tool: FC = () => {
   const { actions, handleClick } = useActions();
 
   if (!actions || !actions.length) return null;

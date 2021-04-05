@@ -4,7 +4,7 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import React from 'react';
 import { WithTooltip, IconButton } from '@storybook/components';
 import { useStorybookApi } from '@storybook/api';
-import { CHANGE } from '@storybook/addon-knobs/dist/shared';
+import { CHANGE } from '@storybook/addon-knobs/dist/cjs/shared';
 import { ToolbarActionSetting } from '../../../typings';
 
 jest.mock('react', () => ({

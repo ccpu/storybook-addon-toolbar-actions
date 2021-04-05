@@ -1,4 +1,4 @@
-import React, { SFC, useCallback, useEffect, useRef } from 'react';
+import React, { FC, useCallback, useEffect, useRef } from 'react';
 import { ToolbarAction, ToolbarActionOption } from '../../typings';
 import {
   IconButton,
@@ -6,7 +6,7 @@ import {
   TooltipLinkList,
 } from '@storybook/components';
 import { useStorybookApi } from '@storybook/api';
-import { CHANGE } from '@storybook/addon-knobs/dist/shared';
+import { CHANGE } from '@storybook/addon-knobs/dist/cjs/shared';
 
 export interface ActionButtonProps extends ToolbarAction {
   onClick: (
@@ -16,7 +16,7 @@ export interface ActionButtonProps extends ToolbarAction {
   ) => void;
 }
 
-const ActionButton: SFC<ActionButtonProps> = ({
+const ActionButton: FC<ActionButtonProps> = ({
   id,
   onClick,
   icon,
