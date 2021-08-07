@@ -6,7 +6,7 @@ import {
   TooltipLinkList,
 } from '@storybook/components';
 import { useStorybookApi } from '@storybook/api';
-import { CHANGE } from '@storybook/addon-knobs/dist/cjs/shared';
+import { CHANGE } from '@storybook/addon-knobs/dist/shared';
 
 export interface ActionButtonProps extends ToolbarAction {
   onClick: (
